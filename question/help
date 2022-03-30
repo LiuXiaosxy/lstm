@@ -1,0 +1,20 @@
+def build_model(optimizer):
+    grid_model = Sequential()
+    grid_model.add(LSTM(50, return_sequences=True,input_shape=(30,5)))
+    grid_model.add(LSTM(50))
+    grid_model.add(Dropout(0.2))
+    grid_model.add(Dense(1))
+    #对学习过程进行配置，compile（优化器，损失函数，指标列表）
+    grid_model.compile(optimizer=optimizer ,loss='mse')
+    return grid_model
+#KerasRegressor调用sklearn的回归接口（KerasClassifier调用skl的分类接口），build_fn:可调用函数或类实例，sk_params：模型参数和拟合参数
+#build_fn即estimator（优化器或者分类器）
+grid_model = KerasRegressor(build_fn = build_model,verbose = 1,validation_data = (testX,testY))
+parameters = {'batch_size' : [16,20],'epochs': [8,10],'optimizer': ['adam','Adadelta']}
+#gridsearchCV：小数据集的自动化调参
+grid_search = GridSearchCV(estimator = grid_model, param_grid = parameters,cv = 2)
+#开始拟合
+grid_search = grid_search.fit(trainX, trainY)
+
+
+ERROR：RuntimeError: Cannot clone object <tensorflow.python.keras.wrappers.scikit_learn.KerasRegressor object at 0x0000026D491FB670>, as the constructor either does not set or modifies parameter validation_data
